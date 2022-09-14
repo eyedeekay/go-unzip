@@ -63,12 +63,12 @@ func (Unzip) extractAndWriteFile(destination string, f *zip.File) error {
 	}
 
 	if f.FileInfo().IsDir() {
-		err = os.MkdirAll(path, f.Mode())
+		err = os.MkdirAll(path, 0755)
 		if err != nil {
 			return err
 		}
 	} else {
-		err = os.MkdirAll(filepath.Dir(path), f.Mode())
+		err = os.MkdirAll(filepath.Dir(path), 0755)
 		if err != nil {
 			return err
 		}
