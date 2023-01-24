@@ -4,8 +4,11 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
+	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -63,11 +66,7 @@ func (Unzip) extractAndWriteFile(destination string, f *zip.File) error {
 	}
 
 	if f.FileInfo().IsDir() {
-		err = os.MkdirAll(path, 0777)
-		if err != nil {
-			return err
-		}
-		err = os.Chmod(path, f.Mode())
+		err = os.MkdirAll(path, 0755)
 		if err != nil {
 			return err
 		}
@@ -76,12 +75,14 @@ func (Unzip) extractAndWriteFile(destination string, f *zip.File) error {
 		if err != nil {
 			return err
 		}
-		err = os.Chmod(filepath.Dir(path), 0755)
-		if err != nil {
-			return err
+		mode := f.Mode()
+		if runtime.GOOS != "windows" {
+			if mode.Perm() == fs.FileMode(0444) {
+				log.Println(mode.Perm(), fs.FileMode(0444))
+				mode = fs.FileMode(0644)
+			}
 		}
-
-		f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, mode)
 		if err != nil {
 			return err
 		}
