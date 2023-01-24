@@ -63,7 +63,7 @@ func (Unzip) extractAndWriteFile(destination string, f *zip.File) error {
 	}
 
 	if f.FileInfo().IsDir() {
-		err = os.MkdirAll(path, 0755)
+		err = os.MkdirAll(path, 0777)
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func (Unzip) extractAndWriteFile(destination string, f *zip.File) error {
 		if err != nil {
 			return err
 		}
-		err = os.Chmod(filepath.Dir(path), f.Mode())
+		err = os.Chmod(filepath.Dir(path), 0755)
 		if err != nil {
 			return err
 		}
